@@ -1,0 +1,17 @@
+{
+    "id": "earport",
+    "name": "EarPort",
+    "description": "AirPods battery, noise control and settings through the EarPort daemon",
+    "version": "0.1.0",
+    "author": "EarPort Contributors",
+    "icon": "headphones",
+    "type": "composite",
+    "capabilities": ["daemon", "dankbar-widget", "control-center"],
+    "components": {
+        "daemon": "./EarPortDaemon.qml",
+        "widget": "./EarPortWidget.qml"
+    },
+    "settings": "./EarPortSettings.qml",
+    "requires_dms": ">=1.5.0",
+    "permissions": ["settings_read", "settings_write", "process"]
+}
