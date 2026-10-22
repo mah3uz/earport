@@ -72,10 +72,11 @@ The project consists of two components:
 
 1. **earport-daemon** - A C daemon that communicates with AirPods via Bluetooth L2CAP and exposes state via D-Bus
 2. **GNOME Shell Extension** - A JavaScript extension that displays AirPods status in Quick Settings
+3. **DankMaterialShell plugin** (`dms-plugin/`) - The same for Hyprland with [DankMaterialShell](https://danklinux.com/docs/), in place of the extension
 
 ## Requirements
 
-- GNOME Shell 46 or later
+- GNOME Shell 46 or later, or Hyprland with DankMaterialShell 1.5 or later
 - BlueZ (Bluetooth stack)
 - AirPods paired via Bluetooth settings
 
@@ -165,6 +166,68 @@ to remove it (the only step asking for sudo).
    ```
 
 3. Restart GNOME Shell: log out and back in (Wayland), or `Alt+F2`, `r` (X11)
+
+### Hyprland with DankMaterialShell
+
+On Hyprland, the DankMaterialShell (DMS) plugin in `dms-plugin/` takes the
+place of the GNOME extension: a bar widget with a popout, a Control Center
+tile, and its settings in DMS Settings › Plugins.
+
+1. Install the service without the extension (build dependencies as above):
+
+   ```bash
+   ./install.sh --daemon
+   ```
+
+   The prebuilt service from the Quick Install works too.
+
+2. Install the plugin by linking it into DMS's plugin folder, then restart DMS:
+
+   ```bash
+   ln -s "$PWD/dms-plugin" ~/.config/DankMaterialShell/plugins/earport
+   dms restart
+   ```
+
+3. In DMS Settings › Plugins, turn on **EarPort**. Add the **EarPort** widget
+   to the bar, and the **EarPort** tile to the Control Center (its edit
+   button).
+
+4. Let the service know when the computer is in use, with
+   [hypridle](https://wiki.hypr.land/Hypr-Ecosystem/hypridle/). Add this to
+   `~/.config/hypr/hypridle.conf`:
+
+   ```
+   # EarPort: the logind idle hint tells earport-daemon whether the computer is in use
+   listener {
+       timeout = 60
+       ignore_inhibit = true
+       on-timeout = busctl call org.freedesktop.login1 "$(busctl get-property org.freedesktop.login1 /org/freedesktop/login1/user/self org.freedesktop.login1.User Display | cut -d'"' -f4)" org.freedesktop.login1.Session SetIdleHint b true
+       on-resume = busctl call org.freedesktop.login1 "$(busctl get-property org.freedesktop.login1 /org/freedesktop/login1/user/self org.freedesktop.login1.User Display | cut -d'"' -f4)" org.freedesktop.login1.Session SetIdleHint b false
+   }
+   ```
+
+   Then `systemctl --user restart hypridle`. When your AirPods notice you
+   fell asleep, playback pauses 10 minutes later unless you used the computer
+   meanwhile; outside GNOME, the service reads that from the session's idle
+   hint in logind, which this listener sets after a minute without input.
+   `ignore_inhibit` keeps it working while a player blocks idle, as browsers
+   do while playing. The session is looked up through `user/self` because
+   hypridle runs as a user service, outside the session. Without the
+   listener, playback is paused even if you are at the computer. Another
+   idle daemon (swayidle…) can run the same two commands.
+
+The plugin also needs `notify-send` (libnotify) for its notifications, and
+`pactl` (pipewire-pulse) for Switch With Your Apple Devices. Unlike GNOME:
+
+- **Hold Notifications During Conversations** turns on Do Not Disturb while
+  you speak: banners that arrive meanwhile stay in the notification center
+  instead of showing afterwards. A Do Not Disturb you turned on yourself is
+  left alone.
+- There is no keyboard shortcut and no on-screen display for the noise
+  control mode; clicking the Control Center tile cycles it.
+
+To remove it: `rm ~/.config/DankMaterialShell/plugins/earport`, the hypridle
+listener, then `bash install-daemon.sh --uninstall` for the service.
 
 ## Usage
 
