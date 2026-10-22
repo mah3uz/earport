@@ -27,7 +27,6 @@ Item {
 
     readonly property bool _bridgeReady: DMSService.isConnected && DMSService.capabilities.includes("dbus")
     property bool _subscribed: false
-    property var _subIds: []
     property var _lowNotified: ({
             "left": false,
             "right": false
@@ -147,27 +146,14 @@ Item {
         if (_subscribed || !_bridgeReady)
             return;
         _subscribed = true;
-        const remember = response => {
-            const id = response.result?.subscriptionId;
-            if (response.error || !id)
-                return;
-            if (!_subscribed) {
-                DMSService.dbusUnsubscribe(id, null);
-                return;
-            }
-            _subIds = _subIds.concat([id]);
-        };
-        DMSService.dbusSubscribe("session", "org.freedesktop.DBus", "/org/freedesktop/DBus", "org.freedesktop.DBus", "NameOwnerChanged", remember);
-        DMSService.dbusSubscribe("session", busName, objectPath, ifaceName, "", remember);
-        DMSService.dbusSubscribe("session", busName, objectPath, "org.freedesktop.DBus.Properties", "PropertiesChanged", remember);
+        signalMonitor.running = true;
         _refresh();
     }
 
     function _stop() {
         _subscribed = false;
-        if (DMSService.isConnected)
-            _subIds.forEach(id => DMSService.dbusUnsubscribe(id, null));
-        _subIds = [];
+        signalMonitor.running = false;
+        monitorRestartTimer.stop();
         _daemonGone();
     }
 
@@ -200,22 +186,39 @@ Item {
         };
     }
 
-    function _onSignal(subscriptionId, data) {
-        if (_subIds.indexOf(subscriptionId) < 0)
+    function _unwrap(variant) {
+        if (variant === null || typeof variant !== "object" || !("type" in variant))
+            return variant;
+        if (variant.type !== "a{sv}")
+            return variant.data;
+        const out = {};
+        for (const key in variant.data)
+            out[key] = _unwrap(variant.data[key]);
+        return out;
+    }
+
+    function _onSignal(line) {
+        let message;
+        try {
+            message = JSON.parse(line);
+        } catch (e) {
             return;
-        const body = data.body || [];
-        if (data.member === "NameOwnerChanged") {
-            if (body[0] !== busName)
-                return;
+        }
+        const body = message.payload?.data ?? [];
+        if (message.member === "NameOwnerChanged") {
             if (body[2])
                 _refresh();
             else
                 _daemonGone();
-        } else if (data.member === "PropertiesChanged") {
-            if (body[0] === ifaceName)
-                _onPropertiesChanged(body[1] || {});
-        } else if (data.interface === ifaceName) {
-            _onDaemonSignal(data.member, body);
+        } else if (message.member === "PropertiesChanged") {
+            if (body[0] !== ifaceName)
+                return;
+            const changed = {};
+            for (const key in body[1])
+                changed[key] = _unwrap(body[1][key]);
+            _onPropertiesChanged(changed);
+        } else if (message.interface === ifaceName) {
+            _onDaemonSignal(message.member, body);
         }
     }
 
@@ -431,17 +434,33 @@ Item {
         }
     }
 
+    // Not DMSService.dbusSubscribe: DMS 1.6 loses D-Bus subscriptions for good when it reopens its event stream, as opening Settings does
+    Process {
+        id: signalMonitor
+        command: ["busctl", "--user", "monitor", "--json=short", "--match", "type='signal',sender='" + root.busName + "'", "--match", "type='signal',interface='org.freedesktop.DBus',member='NameOwnerChanged',arg0='" + root.busName + "'"]
+        stdout: SplitParser {
+            onRead: line => root._onSignal(line)
+        }
+        onExited: {
+            if (root._subscribed)
+                monitorRestartTimer.start();
+        }
+    }
+
+    Timer {
+        id: monitorRestartTimer
+        interval: 2000
+        onTriggered: {
+            if (root._subscribed)
+                signalMonitor.running = true;
+        }
+    }
+
     Connections {
         target: DMSService
-        function onDbusSignalReceived(subscriptionId, data) {
-            root._onSignal(subscriptionId, data);
-        }
         function onConnectionStateChanged() {
-            if (!DMSService.isConnected && root._subscribed) {
-                root._subIds = [];
-                root._subscribed = false;
-                root._daemonGone();
-            }
+            if (!DMSService.isConnected && root._subscribed)
+                root._stop();
         }
         function onCapabilitiesReceived() {
             root._start();
