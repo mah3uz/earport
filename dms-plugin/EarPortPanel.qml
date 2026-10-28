@@ -3,7 +3,6 @@ import Quickshell
 import qs.Common
 import qs.Services
 import qs.Widgets
-import qs.DankCommon.Widgets as DankCommon
 import "earport.js" as EarPort
 
 Column {
@@ -156,7 +155,7 @@ Column {
                 Keys.onSpacePressed: choose()
                 Keys.onReturnPressed: choose()
 
-                DankCommon.FocusRing {}
+                FocusRing {}
 
                 Column {
                     anchors.centerIn: parent
