@@ -1,5 +1,5 @@
 project('earport-daemon', 'c',
-    version: '0.6.0',
+    version: '0.6.2',
     license: 'GPL-3.0-or-later',
     default_options: [
         'c_std=c11',
@@ -185,7 +185,7 @@ test_battery_provider = executable('test-battery-provider',
           'src/bluez_monitor.c'),
     battery_provider_gen,
     include_directories: include_directories('src'),
-    dependencies: [glib_dep, gio_dep],
+    dependencies: [glib_dep, gio_dep, gio_unix_dep],
 )
 test('battery-provider', test_battery_provider)
 
