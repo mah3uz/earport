@@ -302,6 +302,11 @@ The plugin also needs `notify-send` (libnotify) for its notifications, and
   left alone.
 - There is no keyboard shortcut and no on-screen display for the noise
   control mode; clicking the Control Center tile cycles it.
+- With blueman, each connection is announced twice: by blueman and by
+  EarPort, which leaves out the short cuts and the handoff reconnections. To
+  keep blueman's for your other devices only, add a rule in DMS Settings ›
+  Notifications: app name is exactly `blueman`, summary contains `AirPods`,
+  action Ignore Completely.
 
 To remove it: `rm ~/.config/dms/plugins/earport`, the hypridle
 listener, then `bash install-daemon.sh --uninstall` for the service.
