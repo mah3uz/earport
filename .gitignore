@@ -39,3 +39,6 @@ extension/locale/
 
 # Nix
 flake.lock
+
+# Claude local development files
+.claude/
