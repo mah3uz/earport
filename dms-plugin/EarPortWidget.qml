@@ -2,6 +2,7 @@ import QtQuick
 import qs.Common
 import qs.Services
 import qs.Widgets
+import qs.DCommon.Widgets
 import qs.Modules.Plugins
 import "earport.js" as EarPort
 
@@ -95,7 +96,7 @@ PluginComponent {
                 anchors.verticalCenter: parent.verticalCenter
                 visible: root.lowest !== null
 
-                DankIcon {
+                DIcon {
                     anchors.verticalCenter: parent.verticalCenter
                     visible: root.lowest?.charging ?? false
                     name: "bolt"

@@ -71,11 +71,11 @@ The project consists of two components:
 
 1. **earport-daemon** - A C daemon that communicates with AirPods via Bluetooth L2CAP and exposes state via D-Bus
 2. **GNOME Shell Extension** - A JavaScript extension that displays AirPods status in Quick Settings
-3. **DankMaterialShell plugin** (`dms-plugin/`) - The same for Hyprland with [DankMaterialShell](https://danklinux.com/docs/), in place of the extension
+3. **Dux Shell (DMS) plugin** (`dms-plugin/`) - The same for Hyprland with [Dux Shell](https://duxlabs.dev/docs/), in place of the extension
 
 ## Requirements
 
-- GNOME Shell 46 or later, or Hyprland with DankMaterialShell 1.5 or later
+- GNOME Shell 46 or later, or Hyprland with Dux Shell 2.0 or later
 - BlueZ (Bluetooth stack)
 - AirPods paired via Bluetooth settings
 
@@ -244,9 +244,9 @@ to remove it (the only step asking for sudo).
    ```
 3. Restart GNOME Shell: log out and back in (Wayland), or `Alt+F2`, `r` (X11)
 
-### Hyprland with DankMaterialShell
+### Hyprland with Dux Shell
 
-On Hyprland, the DankMaterialShell (DMS) plugin in `dms-plugin/` takes the
+On Hyprland, the Dux Shell (DMS) plugin in `dms-plugin/` takes the
 place of the GNOME extension: a bar widget with a popout, a Control Center
 tile, and its settings in DMS Settings › Plugins.
 
@@ -261,7 +261,7 @@ tile, and its settings in DMS Settings › Plugins.
 2. Install the plugin by linking it into DMS's plugin folder, then restart DMS:
 
    ```bash
-   ln -s "$PWD/dms-plugin" ~/.config/DankMaterialShell/plugins/earport
+   ln -s "$PWD/dms-plugin" ~/.config/dms/plugins/earport
    dms restart
    ```
 
@@ -303,7 +303,7 @@ The plugin also needs `notify-send` (libnotify) for its notifications, and
 - There is no keyboard shortcut and no on-screen display for the noise
   control mode; clicking the Control Center tile cycles it.
 
-To remove it: `rm ~/.config/DankMaterialShell/plugins/earport`, the hypridle
+To remove it: `rm ~/.config/dms/plugins/earport`, the hypridle
 listener, then `bash install-daemon.sh --uninstall` for the service.
 
 ## Usage

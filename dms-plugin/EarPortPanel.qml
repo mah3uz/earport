@@ -3,6 +3,7 @@ import Quickshell
 import qs.Common
 import qs.Services
 import qs.Widgets
+import qs.DCommon.Widgets
 import "earport.js" as EarPort
 
 Column {
@@ -79,7 +80,7 @@ Column {
             }
         }
 
-        DankActionButton {
+        DActionButton {
             id: settingsButton
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
@@ -191,7 +192,7 @@ Column {
         }
     }
 
-    DankToggle {
+    DToggle {
         visible: root.connected
         text: "Conversation Awareness"
         description: "Lower the volume when you speak"
@@ -199,7 +200,7 @@ Column {
         onToggled: checked => root.daemon.setConversationalAwareness(checked)
     }
 
-    DankButton {
+    DButton {
         width: parent.width
         visible: root.connected && root.s.AudioSource === "other"
         iconName: "computer"
@@ -223,13 +224,13 @@ Column {
         Row {
             spacing: Theme.spacingS
 
-            DankButton {
+            DButton {
                 iconName: "help"
                 text: "How to Install"
                 onClicked: Qt.openUrlExternally(root.installUrl + "#installation")
             }
 
-            DankButton {
+            DButton {
                 iconName: "content_copy"
                 text: "Copy Command"
                 backgroundColor: Theme.surfaceContainerHigh

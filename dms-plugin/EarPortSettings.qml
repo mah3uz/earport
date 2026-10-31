@@ -2,6 +2,7 @@ import QtQuick
 import qs.Common
 import qs.Services
 import qs.Widgets
+import qs.DCommon.Widgets
 import qs.Modules.Plugins
 
 PluginSettings {
@@ -78,7 +79,7 @@ PluginSettings {
         width: parent.width
         spacing: Theme.spacingM
 
-        DankIcon {
+        DIcon {
             id: glyph
             anchors.verticalCenter: parent.verticalCenter
             size: Theme.iconSize
@@ -155,7 +156,7 @@ PluginSettings {
             width: parent.width
             spacing: Theme.spacingS
 
-            DankTextField {
+            DTextField {
                 id: nameField
                 width: parent.width - (saveButton.visible ? saveButton.width + parent.spacing : 0)
                 placeholderText: root.modelName
@@ -164,7 +165,7 @@ PluginSettings {
                 Component.onCompleted: text = root.savedName
             }
 
-            DankButton {
+            DButton {
                 id: saveButton
                 anchors.verticalCenter: parent.verticalCenter
                 visible: nameField.text.trim() !== root.savedName
@@ -235,7 +236,7 @@ PluginSettings {
             wrapMode: Text.WordWrap
         }
 
-        DankSlider {
+        DSlider {
             width: parent.width
             value: root.s.AdaptiveNoiseLevel ?? 50
             minimum: 0
@@ -299,7 +300,7 @@ PluginSettings {
         text: "Media and Connection"
     }
 
-    DankDropdown {
+    DDropdown {
         width: parent.width
         enabled: root.available
         opacity: enabled ? 1 : 0.5
@@ -424,7 +425,7 @@ PluginSettings {
                 onToggled: checked => root.daemon.setSetting(settingRow.modelData.key, checked)
             }
 
-            DankDropdown {
+            DDropdown {
                 id: choice
                 width: parent.width
                 visible: !!settingRow.modelData.choices

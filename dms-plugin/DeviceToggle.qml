@@ -1,6 +1,7 @@
 import QtQuick
 import qs.Common
 import qs.Widgets
+import qs.DCommon.Widgets
 
 // Same look as ToggleSetting, but the value lives on the AirPods, not in plugin settings
 Row {
@@ -38,7 +39,7 @@ Row {
         }
     }
 
-    DankToggle {
+    DToggle {
         id: toggle
         anchors.verticalCenter: parent.verticalCenter
         checked: root.checked

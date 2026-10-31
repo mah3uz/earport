@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Shapes
 import qs.Common
 import qs.Widgets
+import qs.DCommon.Widgets
 
 Column {
     id: root
@@ -58,7 +59,7 @@ Column {
             }
         }
 
-        DankIcon {
+        DIcon {
             anchors.centerIn: parent
             visible: root.key === "headphones"
             name: "headphones"
@@ -79,7 +80,7 @@ Column {
         anchors.horizontalCenter: parent.horizontalCenter
         spacing: 2
 
-        DankIcon {
+        DIcon {
             anchors.verticalCenter: parent.verticalCenter
             visible: root.charging
             name: "bolt"
